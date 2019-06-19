@@ -8,18 +8,29 @@ public class S_box {
 	private int[] final_quotient = new int[16];
 	private int[] remainder = new int[16];
 	private int[][] s_box = new int[16][16];
+	private int[] s_box_one_dimen = new int[256];
 	
 	private int get_bit(byte b,int i) {
 	    int bit = (int)((b>>i) & 0x1);
 	    return bit;
 	}
 	
-	private int[] byte_to_intarry(byte data) {
+	public int[] byte_to_intarry(byte data) {
 		int[] bits = new int[16];
 		for (int i = 0; i < 8; i++) {
 			bits[i] = get_bit(data, i);
 		}
 		return bits;
+	}
+	
+	public byte intarry_to_byte(int[] A) {
+		int result = 0;
+		int exp = 1;
+		for (int i = 0; i < 8; i++) {
+			result = result + A[i]*exp;
+			exp = exp * 2;
+		}
+		return (byte)result;
 	}
 	
 	private int get_exponent(int[] num) {
@@ -44,7 +55,7 @@ public class S_box {
 		if(a_exponent >= b_exponent) {
 			diff_exponent = a_exponent - b_exponent;
 			for (int i = 0; i < B.length; i++) {
-				if(i+diff_exponent < B.length)
+				if(i+diff_exponent < A.length)
 					one_quotient[i+diff_exponent] = B[i];
 				if(i < diff_exponent)
 					one_quotient[i] = 0;
@@ -64,7 +75,9 @@ public class S_box {
 		}
 	}
 	
-	private int[] multiplication(int[] A, int[] B) {
+	
+	
+	public int[] multiplication(int[] A, int[] B) {
 		int[] product = new int[16];
 		int[] modeled_product = new int[16];
 		for(int i = 0 ; i < 8 ; i++) {
@@ -75,11 +88,19 @@ public class S_box {
 			}
 		}
 		modeled_product = product;
-		if(get_exponent(product) > 8 ) {
+		if(get_exponent(product) >= get_exponent(irreducible) -1 ) {
 			division(product, irreducible.clone());
 			modeled_product = remainder;
 		}
 		return modeled_product;
+	}
+	
+	public static int mul(byte A, byte B) {
+		S_box s_box = new S_box();
+		int[] AA = s_box.byte_to_intarry(A);
+		int[] BB = s_box.byte_to_intarry(B);
+		int[] result = s_box.multiplication(AA, BB);
+		return s_box.intarry_to_byte(result);
 	}
 	
 	private int[] subtract(int[] A, int[] B) {
@@ -163,7 +184,7 @@ public class S_box {
 					bits = get_inverse(byte_to_intarry(data));
 				}
 				s_box[i][j] = convert(bits);
-				String string = String.format("%02x", s_box[i][j]);
+				String string = String.format("%02X", s_box[i][j]);
 				System.out.print(string+" ");
 			}
 			System.out.println();
@@ -171,12 +192,27 @@ public class S_box {
 		System.out.println("s box has been generated");
 		return s_box;
 	}
+	
+	public int[] generate_one_dime() {
+		generate();
+		for (int i = 0; i < 256; i++) {
+			s_box_one_dimen[i] = s_box[i/16][i%16];
+//			if(i%16 == 0 && i != 0)
+//				System.out.println();
+//			String string = String.format("%02x", s_box_one_dimen[i]);
+//			System.out.print(string+" ");
+		}
+		return s_box_one_dimen;
+	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
 		S_box s_box = new S_box();
 		s_box.generate();
+		s_box.generate_one_dime();
+		
+		System.out.println("Done!");
 		
 	}
 	
