@@ -9,6 +9,7 @@ public class S_box {
 	private int[] remainder = new int[16];
 	private int[][] s_box = new int[16][16];
 	private int[] s_box_one_dimen = new int[256];
+	private int[] inv_s_box_one_dimen = new int[256];
 	
 	private int get_bit(byte b,int i) {
 	    int bit = (int)((b>>i) & 0x1);
@@ -172,7 +173,7 @@ public class S_box {
 	public int[][] generate() {
 		int i = 0;
 		int j = 0;
-		System.out.println("begin to generate s box");
+		System.out.println("begin to generate s_box");
 		for(; i < 16 ; i++) {
 			for(j = 0; j < 16 ; j++) {
 				int[] bits = new int[16];
@@ -184,12 +185,12 @@ public class S_box {
 					bits = get_inverse(byte_to_intarry(data));
 				}
 				s_box[i][j] = convert(bits);
-				String string = String.format("%02X", s_box[i][j]);
-				System.out.print(string+" ");
+//				String string = String.format("%02X", s_box[i][j]);
+//				System.out.print(string+" ");
 			}
-			System.out.println();
+//			System.out.println();
 		}
-		System.out.println("s box has been generated");
+//		System.out.println("s box has been generated");
 		return s_box;
 	}
 	
@@ -197,12 +198,31 @@ public class S_box {
 		generate();
 		for (int i = 0; i < 256; i++) {
 			s_box_one_dimen[i] = s_box[i/16][i%16];
-//			if(i%16 == 0 && i != 0)
-//				System.out.println();
-//			String string = String.format("%02x", s_box_one_dimen[i]);
-//			System.out.print(string+" ");
+			if(i%16 == 0 && i != 0)
+				System.out.println();
+			String string = String.format("%02X", s_box_one_dimen[i]);
+			System.out.print(string+" ");
 		}
+		System.out.println();
+		System.out.println("s_box has been generated");
 		return s_box_one_dimen;
+	}
+	
+	public int[] generate_inverse_one_dime() {
+		generate_one_dime();
+		System.out.println("Invser s_box:");
+		for (int i = 0; i < inv_s_box_one_dimen.length; i++) {
+			inv_s_box_one_dimen[s_box_one_dimen[i]] = i;
+		}
+		for (int i = 0; i < inv_s_box_one_dimen.length; i++) {
+			
+			if(i%16 == 0 && i != 0)
+				System.out.println();
+			String string = String.format("%02X", inv_s_box_one_dimen[i]);
+			System.out.print(string+" ");
+		}
+		System.out.println();
+		return inv_s_box_one_dimen;
 	}
 
 	public static void main(String[] args) {
@@ -211,7 +231,7 @@ public class S_box {
 		S_box s_box = new S_box();
 		s_box.generate();
 		s_box.generate_one_dime();
-		
+		s_box.generate_inverse_one_dime();
 		System.out.println("Done!");
 		
 	}

@@ -16,13 +16,12 @@ public class Cipher {
 									{(byte) 0x1b, 0x00, 0x00, 0x00},
 									{(byte) 0x36, 0x00, 0x00, 0x00}};
 	
-	int Nb ;
-	int Nk ;
-	int Nr ;
-	byte[][] w;
-	byte[] key;
-	int[] s_box_one_dime ;
-	S_box sboxgenerator ;
+	public int Nb ;
+	public int Nk ;
+	public int Nr ;
+	private byte[][] w;
+	private int[] s_box_one_dime ;
+	private S_box sboxgenerator ;
 	
 	public Cipher() {
 		// TODO Auto-generated constructor stub
@@ -30,12 +29,15 @@ public class Cipher {
 		Nk = 4;
 		Nr = 10;
 		w = new byte[Nb*(Nr+1)][Nb];
-		key = new byte[16];
 		sboxgenerator = new S_box();
 		s_box_one_dime = sboxgenerator.generate_one_dime();
 	}
 	
-	public String encryptstate(byte[][] state) {
+	public byte[][] getKeyExpansionresult() {
+		return w;
+	}
+	
+	public byte[][] encryptstate(byte[][] state) {
 		System.out.println("Begin to encrypt state!!!");
 		System.out.println("input:");
 		printstate(state);
@@ -73,11 +75,11 @@ public class Cipher {
 		System.out.println("output:");
 		
 		
-		return statetostring(state);
+		return state;
 	}
 	
 	
-	public String statetostring(byte[][] state) {
+	private String statetostring(byte[][] state) {
 		StringBuilder stringBuilder = new StringBuilder();
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
@@ -89,7 +91,7 @@ public class Cipher {
 	}
 	
 	
-	public void SubBytes(byte[][] state) {
+	private void SubBytes(byte[][] state) {
 		for (int i = 0; i < Nb; i++) {
 			for (int j = 0; j < Nb; j++) {
 				state[i][j] = (byte)(s_box_one_dime[state[i][j] & 0x00ff] & 0x00ff);
@@ -97,11 +99,7 @@ public class Cipher {
 		}
 	}
 	
-	public void InvSubBytes() {
-		
-	}
-	
-	public byte[][]  ShiftRows(byte[][] state) {
+	private byte[][]  ShiftRows(byte[][] state) {
 		byte[][] tmp = new byte[Nb][Nb];
 		for (int i = 0; i < Nb; i++) {
 			for (int j = 0; j < Nb; j++) {
@@ -111,11 +109,7 @@ public class Cipher {
 		return tmp;
 	}
 	
-	public void InvShiftRows() {
-		
-	}
-	
-	public byte[][]  MixColumns(byte[][] state) {
+	private byte[][]  MixColumns(byte[][] state) {
 		byte[] a = {2,3,1,1};
 		
 		byte[][] tmp = new byte[Nb][Nb];
@@ -132,11 +126,7 @@ public class Cipher {
 		return tmp;
 	}
 	
-	public void InvMixColumns(byte[][] state) {
-		
-	}
-	
-	public void AddRoundKey(int currentroundnum,byte[][] state) {
+	private void AddRoundKey(int currentroundnum,byte[][] state) {
 		for (int i = 0; i < 4; i++) {
 			state[0][i] = (byte) (state[0][i] ^ w[Nb*currentroundnum + i][0]);
 			state[1][i] = (byte) (state[1][i] ^ w[Nb*currentroundnum + i][1]);
@@ -145,7 +135,7 @@ public class Cipher {
 		}
 	}
 	
-	public void Keyexpansion() {
+	public void Keyexpansion(byte[] key) {
 		byte[] temp = new byte[4];
 		int i = 0;
 		while(i < Nk) {
@@ -167,9 +157,10 @@ public class Cipher {
 			w[i] = xorbytes(w[i-Nk], temp);
 			i++;
 		}
+		return;
 	}
 	
-	public byte[] RotWord(byte[] A) {
+	private byte[] RotWord(byte[] A) {
 		byte[] result = new byte[A.length];
 		for (int i = 0; i < A.length; i++) {
 			result[i] = A[(i+1)%A.length];
@@ -177,7 +168,7 @@ public class Cipher {
 		return result;
 	}
 	
-	public byte[] SubWord(byte[] A) {
+	private byte[] SubWord(byte[] A) {
 		byte[] result = new byte[A.length];
 		for (int i = 0; i < A.length; i++) {
 			result[i] = (byte)s_box_one_dime[A[i]&0x00ff];
@@ -203,6 +194,7 @@ public class Cipher {
 			System.out.println("please input correct key!");
 			return "";
 		}
+		byte[] key = new byte[Nk*4];
 		//iterate over key two chars a time, add their hex value to matrix
 		for (int i = 0; i < key.length; i++) {
 				sb = inputkey.substring(start, end);
@@ -211,13 +203,13 @@ public class Cipher {
 				end += 2;
 		}
 		
-		Keyexpansion();
+		Keyexpansion(key);
 		
 		byte[] plaintextbytes = plaintext.getBytes();
 		byte[][] state = new byte[Nb][Nb];
 		
 		for (int i = 0; i < plaintextbytes.length; i++) {
-			if(i%16 == 0) {
+			if(i%16 == 0 && i != 0) {
 				stringBuilder.append(encryptstate(state));
 				state = new byte[Nb][Nb];
 			}
@@ -228,10 +220,11 @@ public class Cipher {
 		return stringBuilder.toString(); 
 	}
 	
-	public void encryptparsestring(String input, String inputkey) {
+	public byte[][] encryptparsestring(String input, String inputkey) {
 		String sb;
 		int start = 0;
 		int end = 2;
+		byte[] key = new byte[Nk*4];
 		for (int i = 0; i < key.length; i++) {
 			sb = inputkey.substring(start, end);
 			key[i] = (byte)(Integer.parseInt(sb.toString(), 16));
@@ -239,7 +232,7 @@ public class Cipher {
 			end += 2;
 		}
 	
-		Keyexpansion();
+		Keyexpansion(key);
 		start = 0;
 		end = 2;
 		byte[][] state = new byte[Nb][Nb];
@@ -252,11 +245,12 @@ public class Cipher {
 				end += 2;
 			}
 		}
-		
-		System.out.println(encryptstate(state));
+		state = encryptstate(state);
+		System.out.println(statetostring(state));
+		return state ;
 	}
 	
-	public void printstate(byte[][] state) {
+	private void printstate(byte[][] state) {
 		int i = 0;
 		int j = 0;
 		for(; i < 4 ; i++) {
