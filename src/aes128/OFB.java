@@ -3,6 +3,11 @@ package aes128;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author RanYunlong
+ * @author Kingteeloki
+ * ZJU 2019.6.17
+ */
 
 public class OFB {
 	Cipher cipher ;

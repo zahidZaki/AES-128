@@ -2,6 +2,12 @@ package aes128;
 
 import static aes128.S_box.mul;
 
+/**
+ * @author RanYunlong
+ * @author Kingteeloki
+ * ZJU 2019.6.17
+ */
+
 public class Decipher {
 	
 	/*

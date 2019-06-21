@@ -1,5 +1,11 @@
 package aes128;
 
+/**
+ * @author RanYunlong
+ * @author Kingteeloki
+ * ZJU 2019.6.17
+ */
+
 public class S_box {
 	
 	public int[] c = {1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0} ;			//used for affine transformation
