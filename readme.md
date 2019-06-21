@@ -22,7 +22,11 @@ in doc. in OFB class
 Example
 ------
 input keys:`000102030405060708090a0b0c0d0e0f`
+
 plaintext:`00112233445566778899aabbccddeeff`
+
 output:`69C4E0D86A7B0430D8CDB78070B4C55A`
+
 intermediate result can be found in [result](./result.txt) including OFB example.
+
 if you want to know intermediate result of OFB pattern, just replace function `encryptstatenoprint(byte[][] state)` by `encryptstate(byte[][] state)` in functions  `encryptstringtobytes(String plaintext, String inputkey, String IV)` and `decryptparseString(String encryption, String inputkey, String IV)`. then rerun main function, it will print all details.
