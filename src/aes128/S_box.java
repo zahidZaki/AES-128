@@ -2,20 +2,25 @@ package aes128;
 
 public class S_box {
 	
-	public int[] c = {1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0} ;
-	public int[] irreducible = {1,1,0,1,1,0,0,0,1,0,0,0,0,0,0,0};
-	private int[] quotient = new int[16];
-	private int[] final_quotient = new int[16];
-	private int[] remainder = new int[16];
-	private int[][] s_box = new int[16][16];
-	private int[] s_box_one_dimen = new int[256];
-	private int[] inv_s_box_one_dimen = new int[256];
+	public int[] c = {1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0} ;			//used for affine transformation
+	public int[] irreducible = {1,1,0,1,1,0,0,0,1,0,0,0,0,0,0,0};	//the irreducible polynomial
+	private int[] quotient = new int[16];							//middle result quotient of division
+	private int[] final_quotient = new int[16];   					//the final quotient you need
+	private int[] remainder = new int[16];							//remainder of division
+	private int[][] s_box = new int[16][16];						//int[][] s_box
+	private int[] s_box_one_dimen = new int[256];					//int[] s_box
+	private int[] inv_s_box_one_dimen = new int[256];				//int[] inverse s_box
 	
 	private int get_bit(byte b,int i) {
 	    int bit = (int)((b>>i) & 0x1);
 	    return bit;
 	}
 	
+	/**
+	 * convert a byte type number to an int[] array
+	 * @param data the byte you want to convert
+	 * @return the int[] array represent a byte.
+	 */
 	public int[] byte_to_intarry(byte data) {
 		int[] bits = new int[16];
 		for (int i = 0; i < 8; i++) {
@@ -24,6 +29,11 @@ public class S_box {
 		return bits;
 	}
 	
+	/**
+	 * convert a byte type number to an int[] array
+	 * @param A the int[] array you want to convert
+	 * @return a byte represent int[] array .
+	 */
 	public byte intarry_to_byte(int[] A) {
 		int result = 0;
 		int exp = 1;
@@ -34,6 +44,7 @@ public class S_box {
 		return (byte)result;
 	}
 	
+	//get the max exponent of an int[] array which represent a byte
 	private int get_exponent(int[] num) {
 		int exponent = 0;
 		for (int i = 1; i <= num.length; i++) {
@@ -43,10 +54,12 @@ public class S_box {
 		return exponent;
 	}
 	
+	//calculate the quotient, this method should used in division()
 	private void calc_quotient(int diff_exponent) {
 		quotient[diff_exponent] = 1;
 	}
 	
+	//perform a polynomial division
 	private void division(int[] A, int[] B){
 		int a_exponent = get_exponent(A);
 		int b_exponent = get_exponent(B);
@@ -76,8 +89,12 @@ public class S_box {
 		}
 	}
 	
-	
-	
+	/**
+	 * perform a polynomials with Coefficients in GF(2^8) multiplication 
+	 * @param A polynomial A int[] array
+	 * @param B polynomial B int[] array
+	 * @return the quotient with Coefficients in GF(2^8) int[] array
+	 */
 	public int[] multiplication(int[] A, int[] B) {
 		int[] product = new int[16];
 		int[] modeled_product = new int[16];
@@ -96,6 +113,13 @@ public class S_box {
 		return modeled_product;
 	}
 	
+	/**
+	 * perform a polynomials with Coefficients in GF(2^8) multiplication 
+	 * @param A polynomial A byte
+	 * @param B polynomial B byte
+	 * @return the quotient with Coefficients in GF(2^8) byte
+	 */
+	
 	public static int mul(byte A, byte B) {
 		S_box s_box = new S_box();
 		int[] AA = s_box.byte_to_intarry(A);
@@ -104,6 +128,8 @@ public class S_box {
 		return s_box.intarry_to_byte(result);
 	}
 	
+	//subtract and plus are both equal to operation xor under model 2 algorithm
+	
 	private int[] subtract(int[] A, int[] B) {
 		int[] result = new int[A.length];
 		for (int i = 0; i < result.length; i++) {
@@ -111,6 +137,8 @@ public class S_box {
 		}
 		return result;
 	}
+	
+	//get the multiplicative inverse in the finite field GF(28)
 	
 	// m(x) = x^8 + x^4 + x^3 + x + 1   {01}{1b}  0000 0001 0001 1011  irreducible polynomial
 	// gcd(bits(x),m(x) = 1 using extended Euclidean algorithm
@@ -150,6 +178,8 @@ public class S_box {
 		return inverse;
 	}
 	
+	//compare two int[] arrays
+	
 	private boolean equals(int[] A, int[] B) {
 		for (int i = 0; i < B.length; i++) {
 			if(A[i] != B[i])
@@ -157,6 +187,8 @@ public class S_box {
 		}
 		return true;
 	}
+	
+	//affine transformation
 	
 	private int convert(int[] bits) {
 		int[] converted = new int[16];
@@ -170,6 +202,11 @@ public class S_box {
 		return result;
 	}
 	
+	
+	/**
+	 * generate  s_box with type int[][]
+	 * @return the int[16][16] array s_box.
+	 */
 	public int[][] generate() {
 		int i = 0;
 		int j = 0;
@@ -194,6 +231,10 @@ public class S_box {
 		return s_box;
 	}
 	
+	/**
+	 * generate s_box with type int[]
+	 * @return the int[256] array s_box.
+	 */
 	public int[] generate_one_dime() {
 		generate();
 		for (int i = 0; i < 256; i++) {
@@ -208,6 +249,10 @@ public class S_box {
 		return s_box_one_dimen;
 	}
 	
+	/**
+	 * generate inverse s_box with type int[]
+	 * @return the int[256] array inverse s_box.
+	 */
 	public int[] generate_inverse_one_dime() {
 		generate_one_dime();
 		System.out.println("Invser s_box:");
@@ -224,7 +269,8 @@ public class S_box {
 		System.out.println();
 		return inv_s_box_one_dimen;
 	}
-
+	
+	// used for testing
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		

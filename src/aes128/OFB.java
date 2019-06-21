@@ -12,13 +12,29 @@ public class OFB {
 		cipher = new Cipher();
 	}
 	
+	/**
+	 * easy way to check whether the method is correct.
+	 * @param plaintext your text need to be encrypted.
+	 * @param inputkey your key which used in encryption and it will be regard as hexadecimal characters.
+	 * @param IV the value as long as a state which change by time
+	 */
 	public void testOFB(String plaintext, String inputkey, String IV) {
 		String encryption = encryptstringtobytes(plaintext, inputkey, IV);
+		System.out.println("after encryption:");
 		System.out.println(encryption);
 		String decryption = decryptparseString(encryption, inputkey, IV);
+		System.out.println("after decryption:");
 		System.out.println(decryption);
 	}
 	
+	/**
+	 * this method will transfer your input text to byte stream and then
+	 * encrypt them in OFB pattern.
+	 * @param plaintext your text need to be encrypted.
+	 * @param inputkey your key which used in encryption and it will be regard as hexadecimal characters.
+	 * @param IV the value as long as a state which change by time
+	 * @return return the encrypted string
+	 */
 	public String encryptstringtobytes(String plaintext, String inputkey, String IV) {
 		StringBuilder stringBuilder = new StringBuilder();
 		String sb;
@@ -60,7 +76,7 @@ public class OFB {
 		List<byte[][]> outputs = new ArrayList<byte[][]>();
 		
 		byte[] plaintextbytes = plaintext.getBytes();
-		printbytes(plaintextbytes);
+//		printbytes(plaintextbytes);
 		byte[][] state = new byte[cipher.Nb][cipher.Nb];
 		
 		for (int i = 0; i < plaintextbytes.length; i++) {
@@ -77,7 +93,7 @@ public class OFB {
 		
 		for (int i = 0 ; i < states.size(); i++) {
 			byte[][] ptext = states.get(i);
-			byte[][] afterencryption = cipher.encryptstate(Input);
+			byte[][] afterencryption = cipher.encryptstatenoprint(Input);
 			outputs.add(xorbytes(afterencryption, ptext));
 			Input = afterencryption;
 		}
@@ -88,7 +104,15 @@ public class OFB {
 		
 		return stringBuilder.toString(); 
 	}
-
+	
+	/**
+	 * this method will transfer your input encrypted text to hexadecimal characters and then
+	 * decrypt them in OFB pattern. 
+	 * @param encryption the encrypted text
+	 * @param inputkey your key which used in encryption and it will be regard as hexadecimal characters.
+	 * @param IV the value as long as a state which change by time
+	 * @return a string decrypted from encryption
+	 */
 	public String decryptparseString(String encryption, String inputkey, String IV) {
 		StringBuilder stringBuilder = new StringBuilder();
 		String sb;
@@ -153,11 +177,11 @@ public class OFB {
 			state = new byte[cipher.Nb][cipher.Nb];
 			initializestate(state);
 		}
-		StringBuilder stringBuilder2 = new StringBuilder();
-		for (int i = 0; i < states.size(); i++) {
-			stringBuilder2.append(statetostring(states.get(i)));
-		}
-		System.out.println(stringBuilder2.toString());
+//		StringBuilder stringBuilder2 = new StringBuilder();
+//		for (int i = 0; i < states.size(); i++) {
+//			stringBuilder2.append(statetostring(states.get(i)));
+//		}
+//		System.out.println(stringBuilder2.toString());
 		
 		
 		byte[][] Input = ivbytes;
@@ -165,7 +189,7 @@ public class OFB {
 		
 		for (int i = 0 ; i < states.size(); i++) {
 			byte[][] ptext = states.get(i);
-			byte[][] afterencryption = cipher.encryptstate(Input);
+			byte[][] afterencryption = cipher.encryptstatenoprint(Input);
 			outputs.add(xorbytes(afterencryption, ptext));
 			Input = afterencryption;
 		}
@@ -175,19 +199,21 @@ public class OFB {
 			stringbytes = combinebytegroup(stringbytes, statetobyte(outputs.get(i)));
 		}
 		
-		printbytes(stringbytes);
+//		printbytes(stringbytes);
 		
 		return new String(stringbytes); 
 	}
 	
+	//initialize state to prevent unexpected stituation
 	private void initializestate(byte[][] state) {
-		for (byte[] fourelement : state) {
-			for(byte element : fourelement ) {
-				element = (byte)(0x32);
+		for (int i = 0; i < state.length; i++) {
+			for (int j = 0; j < state[0].length; j++) {
+				state[i][j] = (byte)(0x32);
 			}
 		}
 	}
 	
+	//implement operation xor on two byte matrix
 	private byte[][] xorbytes(byte[][] A, byte[][] B) {
 		byte[][] result = new byte[A.length][A[0].length];
 		for (int i = 0; i < A.length; i++) {
@@ -198,6 +224,7 @@ public class OFB {
 		return result;
 	}
 	
+	//transfer byte matrix to a string
 	private String statetostring(byte[][] state) {
 		StringBuilder stringBuilder = new StringBuilder();
 		for (int i = 0; i < 4; i++) {
@@ -209,6 +236,7 @@ public class OFB {
 		return string;
 	}
 	
+	//transfer a byte matrix to byte array 
 	private byte[] statetobyte(byte[][] state){
 		byte[] result = new byte[state.length*state[0].length];
 		for (int i = 0; i < result.length; i++) {
@@ -217,6 +245,7 @@ public class OFB {
 		return result;
 	}
 	
+	//combine two byte arrays into one
 	private byte[] combinebytegroup(byte[] A, byte[] B) {
 		byte[] result = new byte[A.length+B.length];
 		for (int i = 0; i < A.length; i++) {
@@ -229,6 +258,7 @@ public class OFB {
 		return result;
 	}
 	
+	//print bytes in byte array in hexadecimal
 	private void printbytes(byte[] A) {
 		StringBuilder stringBuilder = new StringBuilder();
 		for (int i = 0; i < A.length; i++) {

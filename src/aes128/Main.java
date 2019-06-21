@@ -1,8 +1,5 @@
 package aes128;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Scanner;
 
 public class Main {
@@ -17,9 +14,10 @@ public class Main {
 //		String plaintextString = scanner.nextLine();
 		String plaintextString = "00112233445566778899aabbccddeeff";
 		Cipher cipher = new Cipher();
-		byte[][] state = cipher.encryptparsestring(plaintextString, keyString);
+		@SuppressWarnings("deprecation")
+//		byte[][] state = cipher.encryptparsestring(plaintextString, keyString);
 		Decipher decipher = new Decipher(cipher.getKeyExpansionresult());
-		decipher.decryptstate(state);
+//		decipher.decryptstate(state);
 		OFB ofb = new OFB();
 		String plaintext = "AES became effective as a federal government standard after approval by the Secretary of Commerce. It is the first publicly accessible cipher approved by the National Security Agency for top secret information.";
 		String inputkey = "000102030405060708090a0b0c0d0e0f";
