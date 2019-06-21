@@ -60,6 +60,7 @@ public class OFB {
 		List<byte[][]> outputs = new ArrayList<byte[][]>();
 		
 		byte[] plaintextbytes = plaintext.getBytes();
+		printbytes(plaintextbytes);
 		byte[][] state = new byte[cipher.Nb][cipher.Nb];
 		
 		for (int i = 0; i < plaintextbytes.length; i++) {
@@ -82,7 +83,7 @@ public class OFB {
 		}
 		
 		for (int i = 0; i < states.size(); i++) {
-			stringBuilder.append(statetostring(states.get(i)));
+			stringBuilder.append(statetostring(outputs.get(i)));
 		}
 		
 		return stringBuilder.toString(); 
@@ -108,7 +109,7 @@ public class OFB {
 		
 		cipher.Keyexpansion(key);
 		
-		byte[] iv = new byte[cipher.Nb*4];
+		
 		if(IV.length() != 32) {
 			System.out.println("please input correct IV!");
 			return "";
@@ -132,8 +133,9 @@ public class OFB {
 		byte[][] state = new byte[cipher.Nb][cipher.Nb];
 		
 		List<String> encryptions = new ArrayList<String>();
-		for(int i = 0 ; i + 1 < encryption.length() ; ) {
-			encryptions.add(encryption.substring(i*32,(i+1)*32));
+		for(int i = 0 ; i  < encryption.length() ; ) {
+			encryptions.add(encryption.substring(i,i+32));
+			i = i +32;
 		}
 		for (int i = 0; i < encryptions.size(); i++) {
 			start = 0;
@@ -151,6 +153,11 @@ public class OFB {
 			state = new byte[cipher.Nb][cipher.Nb];
 			initializestate(state);
 		}
+		StringBuilder stringBuilder2 = new StringBuilder();
+		for (int i = 0; i < states.size(); i++) {
+			stringBuilder2.append(statetostring(states.get(i)));
+		}
+		System.out.println(stringBuilder2.toString());
 		
 		
 		byte[][] Input = ivbytes;
@@ -163,10 +170,12 @@ public class OFB {
 			Input = afterencryption;
 		}
 		
-		byte[] stringbytes = statetobyte(states.get(0));
-		for (int i = 1; i < states.size(); i++) {
-			stringbytes = combinebytegroup(stringbytes, statetobyte(states.get(i)));
+		byte[] stringbytes = statetobyte(outputs.get(0));
+		for (int i = 1; i < outputs.size(); i++) {
+			stringbytes = combinebytegroup(stringbytes, statetobyte(outputs.get(i)));
 		}
+		
+		printbytes(stringbytes);
 		
 		return new String(stringbytes); 
 	}
@@ -203,7 +212,7 @@ public class OFB {
 	private byte[] statetobyte(byte[][] state){
 		byte[] result = new byte[state.length*state[0].length];
 		for (int i = 0; i < result.length; i++) {
-			result[i] = state[(i/4)%4][i%4];
+			result[i] = state[i%4][(i/4)%4];
 		}
 		return result;
 	}
@@ -213,10 +222,22 @@ public class OFB {
 		for (int i = 0; i < A.length; i++) {
 			result[i] = A[i];
 		}
+		//A:5 B:4  result: 9  a0 a1 a2 a3 a4
 		for (int i = A.length; i < A.length+B.length; i++) {
-			result[i] = B[i];
+			result[i] = B[i - A.length];
 		}
 		return result;
+	}
+	
+	private void printbytes(byte[] A) {
+		StringBuilder stringBuilder = new StringBuilder();
+		for (int i = 0; i < A.length; i++) {
+			
+				stringBuilder.append(String.format("%02X", A[i]));
+			
+		}
+		String string = stringBuilder.toString();
+		System.out.println(string);
 	}
 	
 }

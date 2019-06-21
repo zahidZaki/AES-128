@@ -39,37 +39,37 @@ public class Cipher {
 	
 	public byte[][] encryptstate(byte[][] state) {
 		System.out.println("Begin to encrypt state!!!");
-		System.out.println("input:");
-		printstate(state);
+//		System.out.println("input:");
+//		printstate(state);
 		AddRoundKey(0,state);
 		for (int i = 1; i < Nr ; i++) {
-			System.out.println("start of round " + i +":");
-			printstate(state);
+//			System.out.println("start of round " + i +":");
+//			printstate(state);
 			SubBytes(state);
-			System.out.println("after subbytes:");
-			printstate(state);
+//			System.out.println("after subbytes:");
+//			printstate(state);
 			
 			state = ShiftRows(state);
-			System.out.println("after shiftrows:");
-			printstate(state);
+//			System.out.println("after shiftrows:");
+//			printstate(state);
 			
 			state = MixColumns(state);
-			System.out.println("after mixcolumns:");
-			printstate(state);
+//			System.out.println("after mixcolumns:");
+//			printstate(state);
 			
 			AddRoundKey(i,state);
-			System.out.println("after round key:");
-			printstate(state);
+//			System.out.println("after round key:");
+//			printstate(state);
 		}
-		System.out.println("start of round " + Nr +":");
-		printstate(state);
+//		System.out.println("start of round " + Nr +":");
+//		printstate(state);
 		SubBytes(state);
-		System.out.println("after subbytes:");
-		printstate(state);
+//		System.out.println("after subbytes:");
+//		printstate(state);
 		
 		state = ShiftRows(state);
-		System.out.println("after shiftrows:");
-		printstate(state);
+//		System.out.println("after shiftrows:");
+//		printstate(state);
 		
 		AddRoundKey(Nr,state);
 		System.out.println("output:");
