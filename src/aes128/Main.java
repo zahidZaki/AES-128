@@ -30,6 +30,11 @@ public class Main {
 		String inputkey = "000102030405060708090a0b0c0d0e0f";
 		String IV = 	  "08070605040302010099aabbccddeeff";
 		ofb.testOFB(plaintext, inputkey, IV);
+		
+		
+		//hello Sir.
+		//i have ask any question from you.
+		// did you help me ?
 	}
 
 }
